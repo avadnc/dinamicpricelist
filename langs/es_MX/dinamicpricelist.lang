@@ -58,3 +58,8 @@ UpdateProductsOfDinamicpricelist = Actualizar Precios de Productos
 currency = Moneda
 price = Precio Compra Estático
 DinamicpricelistBoxDescription = Últimos 5 Tipo de Cambio
+
+
+# Errors
+sup_product_null_curr = El proveedor no tiene asignada una Moneda
+err_product = El precio de venta es menor al precio de compra

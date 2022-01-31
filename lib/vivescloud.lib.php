@@ -82,49 +82,54 @@ function getData(&$resql, $idsup = null, $currency = null)
 		$prices_currency = [];
 		$product = new Product($db);
 		$product->fetch($obj->rowid);
-		$sql = "SELECT date_price FROM ".MAIN_DB_PREFIX."product_price where fk_product = ".$obj->rowid. " ORDER BY rowid DESC";
-		$resqlprice = $db->query($sql);
-		$num_row = $db->num_rows($resqlprice);
-		if($num_row > 0) {
-			$objtmp= $db->fetch_object($resqlprice);
-			$date_price = $objtmp->date_price;
-		}
-
-		if (isset($currency)) {
-			foreach ($currency as $current) {
-
-				$result_array = [
-					$current['currency'] => round($product->price * price2num($current['rate']), 2),
-				];
-				$prices_currency[] = $result_array;
+		
+		if ($product->status == 1) {
+			
+			$sql = "SELECT date_price FROM " . MAIN_DB_PREFIX . "product_price where fk_product = " . $obj->rowid . " ORDER BY rowid DESC";
+			$resqlprice = $db->query($sql);
+			$num_row = $db->num_rows($resqlprice);
+			if ($num_row > 0) {
+				$objtmp = $db->fetch_object($resqlprice);
+				$date_price = $objtmp->date_price;
 			}
-		}
 
-		// You can use here results
-		$cost_price = $product->cost_price ? round($product->cost_price, 2) : 0;
-		$price = $product->price ? round($product->price, 2) : 0;
+			if (isset($currency)) {
+				foreach ($currency as $current) {
 
-		$product_array = [
+					$result_array = [
+						$current['currency'] => round($product->price * price2num($current['rate']), 2),
+					];
+					$prices_currency[] = $result_array;
+				}
+			}
 
-			'id' => $product->id,
-			'ref' => "<a href='" . DOL_MAIN_URL_ROOT . "/product/card.php?id=" . $product->id . "'>" . $product->ref . "</a>",
-			'label' => $product->label,
-			'stock_reel' => $product->stock_reel,
-			'price' => $price,
-			'currency' => $prices_currency,
-			'date_price' => $date_price?date('d-m-Y',strtotime($date_price)):null
+			// You can use here results
+			$cost_price = $product->cost_price ? round($product->cost_price, 2) : 0;
+			$price = $product->price ? round($product->price, 2) : 0;
 
-		];
+			$product_array = [
 
-		if ($cost_price > 0) {
-			$product_array['cost_price'] = $cost_price;
-		}
+				'id' => $product->id,
+				'ref' => "<a href='" . DOL_MAIN_URL_ROOT . "/product/card.php?id=" . $product->id . "'>" . $product->ref . "</a>",
+				'label' => $product->label,
+				'stock_reel' => $product->stock_reel,
+				'price' => $price,
+				'currency' => $prices_currency,
+				'date_price' => $date_price ? date('d-m-Y', strtotime($date_price)) : null
 
-		if (count($supplier) > 0) {
-			$product_array['supplier'] = $supplier;
-		}
+			];
 
-		return $product_array;
+			if ($cost_price > 0) {
+				$product_array['cost_price'] = $cost_price;
+			}
+
+			if (count($supplier) > 0) {
+				$product_array['supplier'] = $supplier;
+			}
+
+			return $product_array;
+		} 
+		
 	}
 }
 
@@ -218,7 +223,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 	$pricecategory = new DinamicCategorie($db);
 	$pricecategory->fetch(null, $categorie[0]->id);
 
-	if (!empty($margin)) {
+	if (!empty($margin) || !is_null($margin)) {
 
 		if (floatval($margin) < floatval($pricecategory->value)) {
 			return ["err", "El margen no puede ser inferior a " . $pricecategory->value];
@@ -278,7 +283,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 						$multicurrency_price = $newprice;
 					}
-					
+
 					$supplier_description = $product_fourn->description;
 				}
 			}
@@ -394,7 +399,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			$newprice_min = price2num($newprice_min);
 		}
 
-		if(!$pricecategory->type){
+		if (!$pricecategory->type) {
 			$newprice_min = (($cost_price * 20) / 100) + $cost_price;
 			$newprice_min = price2num($newprice_min);
 		}
@@ -404,7 +409,11 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 		if ($res < 0) {
 
-			setEventMessages($product->error, $product->errors, 'errors');
+			//error
+			$sql = "INSERT INTO " . MAIN_DB_PREFIX . "temp_error (type,value) VALUES ('err_product','" . $product->id . "')";
+			$db->query($sql);
+			// .error
+			setEventMessages($product->ref, $product->errors, 'errors');
 			$db->rollback();
 			return ["err", "El margen no puede ser inferior a " . $pricecategory->value];
 		}
@@ -413,9 +422,9 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 		$product->update($product->id, $user);
 
-		$sql = "SELECT rowid from " . MAIN_DB_PREFIX . "product where rowid =" . $product->id;
-		$resql = $db->query($sql);
 		if ($response == true) {
+			$sql = "SELECT rowid from " . MAIN_DB_PREFIX . "product where rowid =" . $product->id;
+			$resql = $db->query($sql);
 			// var_dump(getData($resql,null,$currency));
 			echo json_encode(getData($resql, $idsup, $currency));
 			exit;
@@ -497,8 +506,9 @@ function getProductSupplier($idprod, $idsup = null)
 	}
 }
 
-function createSQL($ref ,$category = 0, $supplier_id = 0){
-	
+function createSQL($ref, $category = 0, $supplier_id = 0)
+{
+
 	$jointable = "";
 	$wheretable = "";
 	$sql = "SELECT p.rowid from " . MAIN_DB_PREFIX . "product p";
@@ -524,15 +534,15 @@ function createSQL($ref ,$category = 0, $supplier_id = 0){
 	}
 
 	$sql .= $jointable . " where tosell IN(1) " . $wheretable;
-	
+
 	return $sql;
 }
 
+global $exchange;
 $exchange = getCurrency();
 
 foreach ($exchange as $currency) {
-	if ($currency['currency'] == "MXN") {
+	if ($currency['currency'] != $conf->currency) {
 		$header = "<h2 style=\"color:red\"> 1 USD = " . $currency['rate'] . "MXN - <span style=\"color:black;font-size:small;\"> " . $currency['date'] . "</span></h2>";
 	}
 }
-

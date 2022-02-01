@@ -99,7 +99,11 @@ if (isset($user->socid) && $user->socid > 0) {
 	$action = '';
 	$socid = $user->socid;
 }
+//Dolibarr 14
+if($supplier_id <= 0 ){
+	$supplier_id = NULL;
 
+}
 $max = 5;
 $now = dol_now();
 

@@ -56,9 +56,13 @@
                 <th>Sustituto</th>
                 <th>Descripción</th>
                 <th>Stock</th>
-                {foreach from=$currencies item=$currency}
-                    <th>{$currency['currency']}</th>
-                {/foreach}
+                {if isset($currencies)}
+                    {foreach from=$currencies item=$currency}
+                        <th>Venta {$currency['currency']}</th>
+                    {/foreach}
+                {else}
+                    <th>Precio de Venta</th>
+                {/if}
                 <th>Fecha Modificación</th>
             </tr>
         </thead>

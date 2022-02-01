@@ -94,7 +94,7 @@ class modDinamicpricelist extends DolibarrModules
             'theme' => 0,
             // Set this to relative path of css file if module has its own css file
             'css' => array(
-				'https: //cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/fontawesome.min.css'
+				'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/fontawesome.min.css'
                 //    '/dinamicpricelist/css/dinamicpricelist.css.php',
             ),
             // Set this to relative path of js file if module must load a js on all pages

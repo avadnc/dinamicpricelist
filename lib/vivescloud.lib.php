@@ -77,6 +77,7 @@ function getData(&$resql, $idsup = null, $currency = null)
 	if ($obj) {
 
 		$supplier = [];
+
 		$supplier = getProductSupplier($obj->rowid, $idsup);
 
 		$prices_currency = [];
@@ -205,6 +206,10 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 {
 	global $db, $user, $conf, $currencypost;
 
+	if($idsup <= 0 || is_null($idsup)){
+		return ["err", "Debe agregar primero un proveedor"];
+		exit;
+	}
 	$currency = getCurrency();
 	$product = new Product($db);
 	$product->fetch($id);
@@ -423,7 +428,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 function getProductSupplier($idprod, $idsup = null)
 {
 	global $db, $conf;
-
+	
 	$product_fourn = new ProductFournisseur($db);
 	$product = new Product($db);
 	$product->fetch($idprod);
@@ -433,7 +438,7 @@ function getProductSupplier($idprod, $idsup = null)
 
 	if (!empty($idprod)) {
 		$product_fourn_list = $product_fourn->list_product_fournisseur_price($idprod, 'supplier_reputation');
-
+		
 		foreach ($product_fourn_list as $productfourn) {
 
 			if (!empty($idsup)) {
@@ -487,7 +492,6 @@ function getProductSupplier($idprod, $idsup = null)
 				array_push($supplier, $supplier_arr);
 			}
 		}
-
 		response:
 		return $supplier;
 	}

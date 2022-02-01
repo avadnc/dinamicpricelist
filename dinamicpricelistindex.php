@@ -132,7 +132,9 @@ if ($action == "getproducts") {
 /**
  * Smarty assignation
  */
-$smarty->assign('currencies', getCurrency());
+if ($conf->multicurrency->enabled) {
+	$smarty->assign('currencies', $exchange);
+}
 
 $form = new Form($db);
 $formfile = new FormFile($db);

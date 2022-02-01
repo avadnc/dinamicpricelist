@@ -75,7 +75,7 @@
     </table>
 </div>
 {foreach from=$currencies item=$currency}
-    <input type="hidden" id="{$currency['currency']}" value="{$currency['rate']}">
+    <input type="hidden" name="currency[]" id="{$currency['currency']}" value="{$currency['rate']}">
 {/foreach}
 {include file="footer.tpl"}
 

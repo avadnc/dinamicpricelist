@@ -1101,149 +1101,80 @@ $(document).on("keypress", ".editmarg", function (e) {
 		});
 	}
 });
-$(document).on("keypress", ".editUSD", function (e) {
-	if (e.which == 13) {
-		let element = $(this)[0];
-		if (typeof margin !== "undefined") {
-			delete margin;
-		}
-		if (typeof price !== "undefined") {
-			delete price;
-		}
 
-		price = $(element).val();
-		let idcompra = $(element).attr("idprod");
-		cost_price = $("#" + idcompra).val();
-		currency = $("#curr" + idcompra).html();
-		supid = $("#suplist" + idcompra)
-			.prop("selected", true)
-			.val();
-		// $("input[MXN='" + idcompra + "']").prop("disabled", true);
-		// $("input[margen='" + idcompra + "']").prop("disabled", true)
-		data = new FormData();
-		data.append("id", idcompra);
-		data.append("price", price);
-		data.append("supid", supid);
-		data.append("currency", currency);
-		data.append("cost_price", cost_price);
-		data.append("action", "update");
+$("input[name*='currency']").each(function (key, value) {
+	let idcurr = $(value).attr("id");
+	console.log(idcurr);
 
-		$.ajax({
-			method: "POST",
-			contentType: false,
-			processData: false,
-			data: data,
-			async: false,
-			cache: false,
-			success: function (result) {
-				result = JSON.parse(result);
-				if (result[0] == "err") {
-					alert(result[1] + "%");
-					return;
-				}
-				$.each(result["currency"], function (key, value) {
-					$.each(value, function (key, value) {
-						console.log(idcompra);
+	$(document).on("keypress", ".edit" + idcurr, function (e) {
+		if (e.which == 13) {
+			let element = $(this)[0];
+			if (typeof margin !== "undefined") {
+				delete margin;
+			}
+			if (typeof price !== "undefined") {
+				delete price;
+			}
 
-						if (value == 0) {
-							$("input[" + key + "='" + idcompra + "']").val(0);
-							$("input[" + key + "='" + idcompra + "']")
-								.parent()
+			price = $(element).val();
+			let idcompra = $(element).attr("idprod");
+			cost_price = $("#" + idcompra).val();
+			currency = $("#curr" + idcompra).html();
+			supid = $("#suplist" + idcompra)
+				.prop("selected", true)
+				.val();
+			// $("input[MXN='" + idcompra + "']").prop("disabled", true);
+			// $("input[margen='" + idcompra + "']").prop("disabled", true)
+			data = new FormData();
+			data.append("id", idcompra);
+			data.append("price", price);
+			data.append("supid", supid);
+			data.append("currency", currency);
+			data.append("cost_price", cost_price);
+			data.append("action", "update");
 
-								.css("background-color", "#008000");
-						} else {
-							$("input[" + key + "='" + idcompra + "']").val(
-								numberWithCommas(value)
-							);
-							$("input[" + key + "='" + idcompra + "']")
-								.parent()
+			$.ajax({
+				method: "POST",
+				contentType: false,
+				processData: false,
+				data: data,
+				async: false,
+				cache: false,
+				success: function (result) {
+					result = JSON.parse(result);
+					if (result[0] == "err") {
+						alert(result[1] + "%");
+						return;
+					}
+					$.each(result["currency"], function (key, value) {
+						$.each(value, function (key, value) {
+							console.log(idcompra);
 
-								.css("background-color", "#008000");
-						}
+							if (value == 0) {
+								$("input[" + key + "='" + idcompra + "']").val(0);
+								$("input[" + key + "='" + idcompra + "']")
+									.parent()
+
+									.css("background-color", "#008000");
+							} else {
+								$("input[" + key + "='" + idcompra + "']").val(
+									numberWithCommas(value)
+								);
+								$("input[" + key + "='" + idcompra + "']")
+									.parent()
+
+									.css("background-color", "#008000");
+							}
+						});
 					});
-				});
-				marginprofit = result["supplier"][0]["profit"];
-				$("#margin" + idcompra).val(marginprofit);
-			},
-		});
-	}
-});
-$(document).on("keypress", ".editMXN", function (e) {
-	if (e.which == 13) {
-		let element = $(this)[0];
-
-		if (typeof margin !== "undefined") {
-			delete margin;
+					marginprofit = result["supplier"][0]["profit"];
+					$("#margin" + idcompra).val(marginprofit);
+				},
+			});
 		}
-		if (typeof price !== "undefined") {
-			delete price;
-		}
-		priceMXN = $(element).val();
-		exchange = $("#MXN").val();
-		price = parseFloat(priceMXN) / parseFloat(exchange);
-		// console.log("price converted to USD" + price);
-		let idcompra = $(element).attr("idprod");
-		cost_price = $("#" + idcompra).val();
-		currency = $(element).attr("currency");
-		supid = $("#suplist" + idcompra)
-			.prop("selected", true)
-			.val();
-
-		// $("input[USD='" + idcompra + "']").prop("disabled", true);
-		// $("input[margen='" + idcompra + "']").prop("disabled", true);
-
-		data = new FormData();
-
-		data.append("id", idcompra);
-		data.append("price", price);
-		data.append("supid", supid);
-		data.append("currency", currency);
-		data.append("cost_price", cost_price);
-		data.append("action", "update");
-
-		$.ajax({
-			method: "POST",
-			contentType: false,
-			processData: false,
-			data: data,
-			async: false,
-			cache: false,
-			success: function (result) {
-				result = JSON.parse(result);
-				if (result[0] == "err") {
-					alert(result[1] + "%");
-					return;
-				}
-				console.log(result);
-				$.each(result["currency"], function (key, value) {
-					$.each(value, function (key, value) {
-						console.log(idcompra);
-
-						if (value == 0) {
-							$("input[" + key + "='" + idcompra + "']").val(0);
-							$("input[" + key + "='" + idcompra + "']")
-								.parent()
-
-								.css("background-color", "#008000");
-						} else {
-							$("input[" + key + "='" + idcompra + "']").val(
-								numberWithCommas(value)
-							);
-							$("input[" + key + "='" + idcompra + "']")
-								.parent()
-
-								.css("background-color", "#008000");
-						}
-					});
-				});
-				marginprofit = result["supplier"][0]["profit"];
-				$("#margin" + idcompra).val(marginprofit);
-			},
-		});
-
-		// marginprofit = getMarginProfit(cost_price, price, exchange);
-	}
+	});
 });
+
 $(document).on("change click", "select[name='suplist']", function () {
 	let element = $(this)[0];
 	prov = $(element).prop("selected", true).val();

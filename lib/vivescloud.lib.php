@@ -70,7 +70,7 @@ function vivescloudAdminPrepareHead()
 
 function getData(&$resql, $idsup = null, $currency = null)
 {
-	global  $db;
+	global $conf, $db;
 
 	$obj = $db->fetch_object($resql);
 
@@ -101,6 +101,11 @@ function getData(&$resql, $idsup = null, $currency = null)
 					];
 					$prices_currency[] = $result_array;
 				}
+			} else {
+				$result_array = [
+					$conf->currency => round($product->price, 2),
+				];
+				$prices_currency[] = $result_array;
 			}
 
 			// You can use here results

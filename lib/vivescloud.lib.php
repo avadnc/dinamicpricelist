@@ -520,11 +520,13 @@ function createSQL($ref, $category = 0, $supplier_id = 0)
 	return $sql;
 }
 
-global $exchange;
-$exchange = getCurrency();
+if ($conf->multicurrency->enabled) {
+	global $exchange;
+	$exchange = getCurrency();
 
-foreach ($exchange as $currency) {
-	if ($currency['currency'] != $conf->currency) {
-		$header = "<h2 style=\"color:red\"> 1 USD = " . $currency['rate'] . "MXN - <span style=\"color:black;font-size:small;\"> " . $currency['date'] . "</span></h2>";
+	foreach ($exchange as $currency) {
+		if ($currency['currency'] != $conf->currency) {
+			$header = "<h2 style=\"color:red\"> 1 USD = " . $currency['rate'] . "MXN - <span style=\"color:black;font-size:small;\"> " . $currency['date'] . "</span></h2>";
+		}
 	}
 }

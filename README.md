@@ -2,7 +2,11 @@
 
 ## Features
 
-Description...
+This module allows to user update product prices in a table, with multicurrency module enabled.
+
+The price can be fixed by margin benefit or established by final price in local currency or foreign currency.
+
+Products can be organized by categories and fix a minimal percent benefit. By default, module fix 20% minium price.
 
 <!--
 ![Screenshot dinamicpricelist](img/screenshot_dinamicpricelist.png?raw=true "Dinamicpricelist"){imgmd}

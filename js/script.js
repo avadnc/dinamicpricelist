@@ -1056,7 +1056,6 @@ $(document).on("keypress", ".editmarg", function (e) {
 		currency = $("#curr" + idcompra).html();
 
 		data = new FormData();
-
 		data.append("id", idcompra);
 		data.append("price", price);
 		data.append("cost_price", cost_price);
@@ -1105,19 +1104,22 @@ $(document).on("keypress", ".editmarg", function (e) {
 $(document).on("keypress", ".editUSD", function (e) {
 	if (e.which == 13) {
 		let element = $(this)[0];
-		exchange = $("#MXN").val();
-		price = $(element).val();
+		if (typeof margin !== "undefined") {
+			delete margin;
+		}
+		if (typeof price !== "undefined") {
+			delete price;
+		}
 
+		price = $(element).val();
 		let idcompra = $(element).attr("idprod");
 		cost_price = $("#" + idcompra).val();
-		console.log(cost_price);
 		currency = $("#curr" + idcompra).html();
 		supid = $("#suplist" + idcompra)
 			.prop("selected", true)
 			.val();
 		// $("input[MXN='" + idcompra + "']").prop("disabled", true);
-		// $("input[margen='" + idcompra + "']").prop("disabled", true);
-
+		// $("input[margen='" + idcompra + "']").prop("disabled", true)
 		data = new FormData();
 		data.append("id", idcompra);
 		data.append("price", price);
@@ -1170,10 +1172,16 @@ $(document).on("keypress", ".editMXN", function (e) {
 	if (e.which == 13) {
 		let element = $(this)[0];
 
+		if (typeof margin !== "undefined") {
+			delete margin;
+		}
+		if (typeof price !== "undefined") {
+			delete price;
+		}
 		priceMXN = $(element).val();
 		exchange = $("#MXN").val();
 		price = parseFloat(priceMXN) / parseFloat(exchange);
-
+		// console.log("price converted to USD" + price);
 		let idcompra = $(element).attr("idprod");
 		cost_price = $("#" + idcompra).val();
 		currency = $(element).attr("currency");

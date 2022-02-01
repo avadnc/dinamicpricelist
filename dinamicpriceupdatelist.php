@@ -139,7 +139,7 @@ if ($action == "getpricesupplier") {
 }
 
 if ($action == "update") {
-
+	
 	echo json_encode(updatePrice($id, $supplier_id, $cost_price, $price, $margin));
 	exit;
 }

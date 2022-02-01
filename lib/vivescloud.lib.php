@@ -82,9 +82,9 @@ function getData(&$resql, $idsup = null, $currency = null)
 		$prices_currency = [];
 		$product = new Product($db);
 		$product->fetch($obj->rowid);
-		
+
 		if ($product->status == 1) {
-			
+
 			$sql = "SELECT date_price FROM " . MAIN_DB_PREFIX . "product_price where fk_product = " . $obj->rowid . " ORDER BY rowid DESC";
 			$resqlprice = $db->query($sql);
 			$num_row = $db->num_rows($resqlprice);
@@ -128,8 +128,7 @@ function getData(&$resql, $idsup = null, $currency = null)
 			}
 
 			return $product_array;
-		} 
-		
+		}
 	}
 }
 
@@ -222,8 +221,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 	$idprice = null;
 	$pricecategory = new DinamicCategorie($db);
 	$pricecategory->fetch(null, $categorie[0]->id);
-
-	if (!empty($margin) || !is_null($margin)) {
+	if (!empty($margin) || !is_null($margin) && $price <= 0) {
 
 		if (floatval($margin) < floatval($pricecategory->value)) {
 			return ["err", "El margen no puede ser inferior a " . $pricecategory->value];
@@ -258,30 +256,16 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 					}
 
 					if ($multicurrency_code != $conf->currency) {
-						if (!empty($margin)) {
-							$newprice = (((price2num($cost_price) * price2num($margin)) / 100) + price2num($cost_price));
-							$newprice = price2num($newprice, 'MU');
-						}
-						if (!empty($price)) {
-							$newprice = price2num($cost_price, 'MU');
-						}
 
-						$multicurrency_price = $newprice;
-						if ($newprice != 0) {
-							$newprice = $multicurrency_price / price2num($multicurrency_tx);
-						} else {
-							$newprice = 0;
-						}
+
+						$multicurrency_price = price2num($cost_price, 'MU');
+						$sup_newprice = $multicurrency_price / price2num($multicurrency_tx);
+
 					} else {
-						if (!empty($margin)) {
-							$newprice = (((price2num($cost_price) * price2num($margin)) / 100) + price2num($cost_price));
-							$newprice = price2num($newprice, 'MU');
-						}
-						if (!empty($price)) {
-							$newprice = price2num($cost_price, 'MU');
-						}
 
-						$multicurrency_price = $newprice;
+						$sup_newprice = price2num($cost_price, 'MU');
+
+						$multicurrency_price = price2num($cost_price, 'MU');
 					}
 
 					$supplier_description = $product_fourn->description;
@@ -295,7 +279,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			$product_fourn->fetch_product_fournisseur_price($idprice);
 			$ret = $product_fourn->update_buyprice(
 				1,
-				$newprice,
+				$sup_newprice,
 				$user,
 				'HT',
 				$supplier,
@@ -348,7 +332,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 		if ($ret > 0) {
 			$db->commit();
 		}
-
+		
 		if (!empty($margin)) {
 			if ($product->array_options['options_currency'] != $conf->currency) {
 
@@ -356,22 +340,20 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 					if ($rate['currency'] == $product->array_options['options_currency'] && $currencypost == $product->array_options['options_currency']) {
 
-						$newprice = (((price2num($cost_price) * price2num($margin)) / 100) + price2num($cost_price)) / price2num($rate['rate']);
+						$newprice = (price2num($cost_price) / (1 - (price2num($margin) / 100))) / price2num($rate['rate']);
 						$newprice = price2num($newprice, 'MU');
-
 						goto save;
 					}
 				}
 			} else {
-				$newprice = (((price2num($cost_price) * price2num($margin)) / 100) + price2num($cost_price));
+				$newprice =  price2num($cost_price) / (1 - (price2num($margin)) / 100);
 				$newprice = price2num($price, 'MU');
 			}
 		}
-
+	
 		if (!empty($price)) {
 			$newprice = price2num($price, 'MU');
 		}
-
 		save:
 		if ($product->array_options['options_currency'] != $conf->currency) {
 			foreach ($currency as $rate) {
@@ -381,6 +363,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				}
 			}
 		}
+
 		$newprice_min = null;
 		$db->begin();
 		$result = $product->update($id, $user);
@@ -390,20 +373,20 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 		}
 
 		if ($pricecategory->type == 'fixed') {
-			$newprice_min = $cost_price + round(floatval($pricecategory->value), 2);
+			$newprice_min = $sup_newprice + round(floatval($pricecategory->value), 2);
 			$newprice_min = price2num($newprice_min);
 		}
 		if ($pricecategory->type == 'percent') {
 
-			$newprice_min = ($cost_price * floatval(round(floatval($pricecategory->value), 2)) / 100) + $cost_price;
+			$newprice_min = $sup_newprice / (1 - (floatval(round(floatval($pricecategory->value), 2))  / 100));
 			$newprice_min = price2num($newprice_min);
 		}
 
 		if (!$pricecategory->type) {
-			$newprice_min = (($cost_price * 20) / 100) + $cost_price;
+
+			$newprice_min = $sup_newprice / (1 - (20 / 100));
 			$newprice_min = price2num($newprice_min);
 		}
-		// echo $product->id .' - '.$newprice_min.'<br>';
 
 		$res = $product->updatePrice($newprice, 'HT', $user, $product->tva_tx ? $product->tva_tx : '16.00', $newprice_min ? $newprice_min : 0, 0, 0, 0, 0, array('0' => 0));
 

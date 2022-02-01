@@ -260,7 +260,6 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 						$multicurrency_price = price2num($cost_price, 'MU');
 						$sup_newprice = $multicurrency_price / price2num($multicurrency_tx);
-
 					} else {
 
 						$sup_newprice = price2num($cost_price, 'MU');
@@ -302,37 +301,37 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				null,
 				null
 			);
+		} else {
+			$ret = $product_fourn->update_buyprice(
+				1,
+				$sup_newprice,
+				$user,
+				'HT',
+				$supplier,
+				$_POST["oselDispo"],
+				$ref_fourn,
+				$tva_tx,
+				0,
+				0,
+				0,
+				0,
+				$delivery_time_days,
+				$supplier_reputation,
+				array(),
+				'',
+				$multicurrency_price,
+				"HT",
+				$multicurrency_tx,
+				$multicurrency_code,
+				$supplier_description,
+				null,
+				null
+			);
 		}
-		//else {
-		// $ret = $product_fourn->update_buyprice(
-		//     1,
-		//     $newprice,
-		//     $user,
-		//     $_POST["price_base_type"],
-		//     $supplier,
-		//     $_POST["oselDispo"],
-		//     $ref_fourn,
-		//     $tva_tx,
-		//     $_POST["charges"],
-		//     $remise_percent,
-		//     0,
-		//     $npr,
-		//     $delivery_time_days,
-		//     $supplier_reputation,
-		//     array(),
-		//     '',
-		//     0,
-		//     'HT',
-		//     1,
-		//     '',
-		//     $supplier_description,
-		//     null,
-		//     null);
-		// }
 		if ($ret > 0) {
 			$db->commit();
 		}
-		
+
 		if (!empty($margin)) {
 			if ($product->array_options['options_currency'] != $conf->currency) {
 
@@ -350,7 +349,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				$newprice = price2num($price, 'MU');
 			}
 		}
-	
+
 		if (!empty($price)) {
 			$newprice = price2num($price, 'MU');
 		}

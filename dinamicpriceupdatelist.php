@@ -114,7 +114,7 @@ $smarty = new Smartie();
  */
 
 if ($action == "getproducts") {
-	
+
 	$productos = [];
 	$sql = createSQL($ref, $category, $supplier_id);
 	$resql = $db->query($sql);
@@ -139,7 +139,7 @@ if ($action == "getpricesupplier") {
 }
 
 if ($action == "update") {
-	
+
 	echo json_encode(updatePrice($id, $supplier_id, $cost_price, $price, $margin));
 	exit;
 }
@@ -151,8 +151,9 @@ if ($action == "update") {
 /**
  * Smarty assignation
  */
-$smarty->assign('currencies', $exchange);
-
+if ($conf->multicurrency->enabled) {
+	$smarty->assign('currencies', $exchange);
+}
 $form = new Form($db);
 $formfile = new FormFile($db);
 $smarty->assign('supplier', $form->select_company('', 'supid', 's.fournisseur in(1)', 'SelectThirdParty', 0, 0, null, 0, "flat searchstring minwidth200", 1));

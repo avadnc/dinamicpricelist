@@ -60,9 +60,13 @@
                 <th>Proveedor</th>
                 <th>Fecha</th>
                 <th>Margen</th>
-                {foreach from=$currencies item=$currency}
-                    <th>Venta {$currency['currency']}</th>
-                {/foreach}
+                {if isset($currencies)}
+                    {foreach from=$currencies item=$currency}
+                        <th>Venta {$currency['currency']}</th>
+                    {/foreach}
+                {else}
+                    <th>Precio de Venta</th>
+                {/if}
             </tr>
         </thead>
         <tbody>

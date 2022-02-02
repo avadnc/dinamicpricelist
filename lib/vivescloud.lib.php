@@ -187,12 +187,13 @@ function calcProfit($cost_price, $price)
 
 function returnCurrency($arr, $curr)
 {
+	if (!is_null($arr)) {
+		$num = count($arr);
 
-	$num = count($arr);
-
-	for ($i = 0; $i < $num; $i++) {
-		if ($arr[$i]['currency'] == $curr) {
-			return $arr[$i]['rate'];
+		for ($i = 0; $i < $num; $i++) {
+			if ($arr[$i]['currency'] == $curr) {
+				return $arr[$i]['rate'];
+			}
 		}
 	}
 }
@@ -289,7 +290,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 
 		$db->begin();
 		$product_fourn->fetch_product_fournisseur_price($idprice);
-		if ($conf->multicurrency->enabled) {		
+		if ($conf->multicurrency->enabled) {
 			$ret = $product_fourn->update_buyprice(
 				1,
 				$sup_newprice,
@@ -316,52 +317,27 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				null
 			);
 		} else {
-			// $ret = $product_fourn->update_buyprice(
-			// 	1,
-			// 	$sup_newprice,
-			// 	$user,
-			// 	'HT',
-			// 	$supplier,
-			// 	$_POST["oselDispo"],
-			// 	$ref_fourn,
-			// 	$tva_tx,
-			// 	0,
-			// 	0,
-			// 	0,
-			// 	0,
-			// 	$delivery_time_days,
-			// 	$supplier_reputation,
-			// 	array(),
-			// 	'',
-			// 	$multicurrency_price,
-			// 	"HT",
-			// 	$multicurrency_tx,
-			// 	$multicurrency_code,
-			// 	$supplier_description,
-			// 	null,
-			// 	null
-			// );
 			$ret = $product_fourn->update_buyprice(
 				1,
-				$sup_newprice, 
-				$user, 
-				'HT', 
-				$supplier, 
-				0, 
-				$ref_fourn, 
-				$tva_tx, 
-				0, 
-				0, 
-				0, 
-				0, 
-				$delivery_time_days, 
-				$supplier_reputation, 
-				array(), 
-				'', 
-				0, 
-				'HT', 
-				1, 
-				'', 
+				$sup_newprice,
+				$user,
+				'HT',
+				$supplier,
+				0,
+				$ref_fourn,
+				$tva_tx,
+				0,
+				0,
+				0,
+				0,
+				$delivery_time_days,
+				$supplier_reputation,
+				array(),
+				'',
+				0,
+				'HT',
+				1,
+				'',
 				$supplier_description,
 				null,
 				null
@@ -393,7 +369,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				$newprice = price2num($newprice, 'MU');
 			}
 		}
-				
+
 		if (!empty($price)) {
 			$newprice = price2num($price, 'MU');
 		}
@@ -430,7 +406,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			$newprice_min = $sup_newprice / (1 - (20 / 100));
 			$newprice_min = price2num($newprice_min);
 		}
-		
+
 		$res = $product->updatePrice($newprice, 'HT', $user, $product->tva_tx ? $product->tva_tx : '16.00', $newprice_min ? $newprice_min : 0, 0, 0, 0, 0, array('0' => 0));
 
 		if ($res < 0) {
@@ -485,18 +461,21 @@ function getProductSupplier($idprod, $idsup = null)
 						'currency' => $productfourn->fourn_multicurrency_code,
 					];
 
-					if ($productfourn->fourn_multicurrency_code != $conf->currency) {
-						$supplier_arr['price'] = round($productfourn->fourn_multicurrency_price, 2);
+					if ($conf->multicurrency->enabled) {
+						if ($productfourn->fourn_multicurrency_code != $conf->currency) {
+							$supplier_arr['currency'] = $productfourn->fourn_multicurrency_code;
+							$supplier_arr['price'] = round($productfourn->fourn_multicurrency_price, 2);
 
-						$rate = returnCurrency($currencies, $productfourn->fourn_multicurrency_code);
+							$rate = returnCurrency($currencies, $productfourn->fourn_multicurrency_code);
 
-						$price_profit = floatval($product->price) * floatval($rate);
-						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], $price_profit);
-					} else {
-						$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
-						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
+							$price_profit = floatval($product->price) * floatval($rate);
+							$supplier_arr['profit'] = calcProfit($supplier_arr['price'], $price_profit);
+						} else {
+							$supplier_arr['currency'] =	$conf->currency;
+							$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
+							$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
+						}
 					}
-
 					array_push($supplier, $supplier_arr);
 
 					goto response;
@@ -507,22 +486,28 @@ function getProductSupplier($idprod, $idsup = null)
 					'supid' => $productfourn->fourn_id,
 					'name' => $productfourn->fourn_name,
 					'modification_date' => dol_print_date($productfourn->fourn_date_modification, "%d/%m/%Y"),
-					'currency' => $productfourn->fourn_multicurrency_code,
+
 					// 'price' => round($productfourn->fourn_unitprice, 2),
 				];
-				if ($productfourn->fourn_multicurrency_code != $conf->currency) {
-					$supplier_arr['price'] = round($productfourn->fourn_multicurrency_price, 2);
-					$rate = returnCurrency($currencies, $productfourn->fourn_multicurrency_code);
-					// echo "el precio es ".$product->price;
-					// $price_profit = 0;
-					$price_profit = $product->price ? round(floatval($product->price), 2) * floatval($rate) : 0;
+				if ($conf->multicurrency->enabled) {
+					if ($productfourn->fourn_multicurrency_code != $conf->currency) {
+						$supplier_arr['currency'] = $productfourn->fourn_multicurrency_code;
+						$supplier_arr['price'] = round($productfourn->fourn_multicurrency_price, 2);
+						$rate = returnCurrency($currencies, $productfourn->fourn_multicurrency_code);
+						// echo "el precio es ".$product->price;
+						// $price_profit = 0;
+						$price_profit = $product->price ? round(floatval($product->price), 2) * floatval($rate) : 0;
 
-					$supplier_arr['profit'] = calcProfit($supplier_arr['price'], $price_profit);
+						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], $price_profit);
+					} else {
+						$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
+						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
+					}
 				} else {
+					$supplier_arr['currency'] = $conf->currency;
 					$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
 					$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
 				}
-
 				array_push($supplier, $supplier_arr);
 			}
 		}

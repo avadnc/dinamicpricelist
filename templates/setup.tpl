@@ -6,9 +6,9 @@ global $langs;
     <input type="hidden" name="token" value="{$newToken}">
     <table class="noborder centpercent">
         <tr class="liste_titre">
-<td class="titlefield">{php}echo $langs->trans('abv_cat'); {/php}</td>
-<td class="titlefield">{php}echo $langs->trans('abv_type'); {/php}</td>
-<td class="titlefield">{php}echo $langs->trans('abv_value'); {/php}</td>
+            <td class="titlefield">{php}echo $langs->trans('abv_cat'); {/php}</td>
+            <td class="titlefield">{php}echo $langs->trans('abv_type'); {/php}</td>
+            <td class="titlefield">{php}echo $langs->trans('abv_value'); {/php}</td>
         </tr>
 
         {foreach from=$data item=$i}
@@ -27,7 +27,7 @@ global $langs;
         {/foreach}
 
     </table>
-<input type="submit" value="{php}echo $langs->trans('save'); {/php}" class="button">
+    <input type="submit" value="{php}echo $langs->trans('save'); {/php}" class="button">
     <a class="button" href="{$self}?action=updateall">{php}echo $langs->trans('update_prices'); {/php}</a>
 </form>
 {if $msg[0] eq "OK"}

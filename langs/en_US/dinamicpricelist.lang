@@ -80,6 +80,7 @@ buy_price = Buy price
 supplier = Supplier
 date = Date
 margin = Margin
+product_wo_category = Products without category
 # Errors
 sup_product_null_curr = The provider is not assigned a Currency
 err_product = El precio de venta es menor al precio de compra

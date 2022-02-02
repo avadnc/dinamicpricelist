@@ -404,9 +404,13 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 		}
 
 		if (!$pricecategory->type) {
-
-			$newprice_min = $sup_newprice / (1 - (20 / 100));
-			$newprice_min = price2num($newprice_min);
+			if (!$conf->global->PERCENT_MIN_PRICE_SELL) {
+				$newprice_min = $sup_newprice / (1 - (20 / 100));
+				$newprice_min = price2num($newprice_min);
+			} else {
+				$newprice_min = $sup_newprice / (1 - (floatval(round(floatval(price2num($conf->global->PERCENT_MIN_PRICE_SELL)), 2))  / 100));
+				$newprice_min = price2num($newprice_min);
+			}
 		}
 
 		$res = $product->updatePrice($newprice, 'HT', $user, $product->tva_tx ? $product->tva_tx : '16.00', $newprice_min ? $newprice_min : 0, 0, 0, 0, 0, array('0' => 0));

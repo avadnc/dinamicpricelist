@@ -173,7 +173,7 @@ $("#search_button_update").click(function (e) {
 		success: function (resp) {
 			result = JSON.parse(resp);
 			var count = result.length;
-			// console.log(result);
+			console.log(result);
 
 			for (var i = 0; i < count; i++) {
 				let id = result[i]["id"];
@@ -430,9 +430,12 @@ $(document).on("keypress", ".editmarg", function (e) {
 			parseFloat(cost_price);
 		currency = $("#curr" + idcompra).html();
 
+		if (typeof currency !== "undefined") {
+			currency = $("#localcurrency").val();
+		}
+		console.log(margin);
 		data = new FormData();
 		data.append("id", idcompra);
-		// data.append("price", price);
 		data.append("cost_price", cost_price);
 		data.append("currency", currency);
 		data.append("margin", margin);

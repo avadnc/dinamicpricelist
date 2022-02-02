@@ -206,7 +206,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 {
 	global $langs, $db, $user, $conf, $currencypost;
 
-	if($idsup <= 0 || is_null($idsup)){
+	if ($idsup <= 0 || is_null($idsup)) {
 		return ["err", $langs->trans('err_supplier')];
 		exit;
 	}
@@ -232,10 +232,11 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 	$pricecategory = new DinamicCategorie($db);
 	$pricecategory->fetch(null, $categorie[0]->id);
 	if (!empty($margin) || !is_null($margin) && $price <= 0) {
-
-		if (floatval($margin) < floatval($pricecategory->value)) {
-			return ["err", $langs->trans('err_margin') . $pricecategory->value];
-			exit;
+		if (!is_null($pricecategory->type)) {
+			if (floatval($margin) < floatval($pricecategory->value)) {
+				return ["err", $langs->trans('err_margin') . $pricecategory->value];
+				exit;
+			}
 		}
 	}
 	if (!is_numeric($cost_price)) {
@@ -258,34 +259,37 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 					$supplier_reputation = $productfourn->supplier_reputation;
 					$multicurrency_code = $productfourn->fourn_multicurrency_code;
 					$idprice = $productfourn->product_fourn_price_id;
-
-					foreach ($currency as $rate) {
-						if ($rate['currency'] == $multicurrency_code) {
-							$multicurrency_tx = $rate['rate'];
+					if ($conf->multicurrency->enabled) {
+						foreach ($currency as $rate) {
+							if ($rate['currency'] == $multicurrency_code) {
+								$multicurrency_tx = $rate['rate'];
+							}
 						}
-					}
 
-					if ($multicurrency_code != $conf->currency) {
+						if ($multicurrency_code != $conf->currency) {
 
 
-						$multicurrency_price = price2num($cost_price, 'MU');
-						$sup_newprice = $multicurrency_price / price2num($multicurrency_tx);
+							$multicurrency_price = price2num($cost_price, 'MU');
+							$sup_newprice = $multicurrency_price / price2num($multicurrency_tx);
+						} else {
+
+							$sup_newprice = price2num($cost_price, 'MU');
+
+							$multicurrency_price = price2num($cost_price, 'MU');
+						}
 					} else {
-
 						$sup_newprice = price2num($cost_price, 'MU');
 
 						$multicurrency_price = price2num($cost_price, 'MU');
 					}
-
 					$supplier_description = $product_fourn->description;
 				}
 			}
 		}
 
 		$db->begin();
-		if ($conf->multicurrency->enabled) {
-			// echo $product_fourn->product_fourn_price_id;exit;
-			$product_fourn->fetch_product_fournisseur_price($idprice);
+		$product_fourn->fetch_product_fournisseur_price($idprice);
+		if ($conf->multicurrency->enabled) {		
 			$ret = $product_fourn->update_buyprice(
 				1,
 				$sup_newprice,
@@ -312,27 +316,52 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				null
 			);
 		} else {
+			// $ret = $product_fourn->update_buyprice(
+			// 	1,
+			// 	$sup_newprice,
+			// 	$user,
+			// 	'HT',
+			// 	$supplier,
+			// 	$_POST["oselDispo"],
+			// 	$ref_fourn,
+			// 	$tva_tx,
+			// 	0,
+			// 	0,
+			// 	0,
+			// 	0,
+			// 	$delivery_time_days,
+			// 	$supplier_reputation,
+			// 	array(),
+			// 	'',
+			// 	$multicurrency_price,
+			// 	"HT",
+			// 	$multicurrency_tx,
+			// 	$multicurrency_code,
+			// 	$supplier_description,
+			// 	null,
+			// 	null
+			// );
 			$ret = $product_fourn->update_buyprice(
 				1,
-				$sup_newprice,
-				$user,
-				'HT',
-				$supplier,
-				$_POST["oselDispo"],
-				$ref_fourn,
-				$tva_tx,
-				0,
-				0,
-				0,
-				0,
-				$delivery_time_days,
-				$supplier_reputation,
-				array(),
-				'',
-				$multicurrency_price,
-				"HT",
-				$multicurrency_tx,
-				$multicurrency_code,
+				$sup_newprice, 
+				$user, 
+				'HT', 
+				$supplier, 
+				0, 
+				$ref_fourn, 
+				$tva_tx, 
+				0, 
+				0, 
+				0, 
+				0, 
+				$delivery_time_days, 
+				$supplier_reputation, 
+				array(), 
+				'', 
+				0, 
+				'HT', 
+				1, 
+				'', 
 				$supplier_description,
 				null,
 				null
@@ -343,23 +372,28 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 		}
 
 		if (!empty($margin)) {
-			if ($product->array_options['options_currency'] != $conf->currency) {
+			if (isset($product->array_options['options_currency'])) {
+				if ($product->array_options['options_currency'] != $conf->currency) {
 
-				foreach ($currency as $rate) {
+					foreach ($currency as $rate) {
 
-					if ($rate['currency'] == $product->array_options['options_currency'] && $currencypost == $product->array_options['options_currency']) {
+						if ($rate['currency'] == $product->array_options['options_currency'] && $currencypost == $product->array_options['options_currency']) {
 
-						$newprice = (price2num($cost_price) / (1 - (price2num($margin) / 100))) / price2num($rate['rate']);
-						$newprice = price2num($newprice, 'MU');
-						goto save;
+							$newprice = (price2num($cost_price) / (1 - (price2num($margin) / 100))) / price2num($rate['rate']);
+							$newprice = price2num($newprice, 'MU');
+							goto save;
+						}
 					}
+				} else {
+					$newprice =  price2num($cost_price) / (1 - (price2num($margin) / 100));
+					$newprice = price2num($newprice, 'MU');
 				}
 			} else {
 				$newprice =  price2num($cost_price) / (1 - (price2num($margin) / 100));
 				$newprice = price2num($newprice, 'MU');
 			}
 		}
-
+				
 		if (!empty($price)) {
 			$newprice = price2num($price, 'MU');
 		}
@@ -396,7 +430,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			$newprice_min = $sup_newprice / (1 - (20 / 100));
 			$newprice_min = price2num($newprice_min);
 		}
-
+		
 		$res = $product->updatePrice($newprice, 'HT', $user, $product->tva_tx ? $product->tva_tx : '16.00', $newprice_min ? $newprice_min : 0, 0, 0, 0, 0, array('0' => 0));
 
 		if ($res < 0) {
@@ -428,7 +462,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 function getProductSupplier($idprod, $idsup = null)
 {
 	global $db, $conf;
-	
+
 	$product_fourn = new ProductFournisseur($db);
 	$product = new Product($db);
 	$product->fetch($idprod);
@@ -438,7 +472,7 @@ function getProductSupplier($idprod, $idsup = null)
 
 	if (!empty($idprod)) {
 		$product_fourn_list = $product_fourn->list_product_fournisseur_price($idprod, 'supplier_reputation');
-		
+
 		foreach ($product_fourn_list as $productfourn) {
 
 			if (!empty($idsup)) {

@@ -100,10 +100,13 @@ if (isset($user->socid) && $user->socid > 0) {
 	$socid = $user->socid;
 }
 //Dolibarr 14
-if($supplier_id <= 0 ){
+if ($supplier_id < 0) {
 	$supplier_id = NULL;
-
 }
+if (empty($currencypost)) {
+	$currencypost = $conf->currency;
+}
+
 $max = 5;
 $now = dol_now();
 

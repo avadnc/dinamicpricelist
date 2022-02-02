@@ -374,11 +374,13 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			$newprice = price2num($price, 'MU');
 		}
 		save:
-		if ($product->array_options['options_currency'] != $conf->currency) {
-			foreach ($currency as $rate) {
+		if (isset($product->array_options['options_currency'])) {
+			if ($product->array_options['options_currency'] != $conf->currency) {
+				foreach ($currency as $rate) {
 
-				if ($rate['currency'] == $product->array_options['options_currency'] && $currencypost == $product->array_options['options_currency']) {
-					$product->array_options['options_price'] = $newprice *	price2num($rate['rate']);
+					if ($rate['currency'] == $product->array_options['options_currency'] && $currencypost == $product->array_options['options_currency']) {
+						$product->array_options['options_price'] = $newprice *	price2num($rate['rate']);
+					}
 				}
 			}
 		}

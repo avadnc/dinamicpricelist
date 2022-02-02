@@ -1,4 +1,7 @@
 {include file="header.tpl"}
+{php}
+global $langs;
+{/php}
 <style>
     #loading {
         position: fixed;
@@ -29,7 +32,8 @@
         <input type="hidden" name="token" value="{$newToken}">
         <table class="tagtable liste listwithfilterbefore">
             <tr class="liste_titre_filter">
-                <td class="liste_titre center"> <input type="text" id="ref" name="ref" placeholder="Buscar Producto">
+                <td class="liste_titre center"> <input type="text" id="ref" name="ref"
+                        placeholder="{php}echo $langs->trans('search_product'); {/php}">
                 </td>
                 <td class="liste_titre center">{$supplier}</td>
                 <td class="liste_titre center">{$category}</td>
@@ -38,9 +42,10 @@
                 </td>
             </tr>
             <tr class="liste_titre">
-                <th class="wrapcolumntitle liste_titre center">Codigo/Descripción</th>
-                <th class="wrapcolumntitle liste_titre center"> Buscar Por Proveedor</th>
-                <th class="wrapcolumntitle liste_titre center"> Buscar Por Marca</th>
+                <th class="wrapcolumntitle liste_titre center"> {php}echo $langs->trans('search_code_description');
+                    {/php}</th>
+                <th class="wrapcolumntitle liste_titre center"> {php}echo $langs->trans('search_supplier'); {/php}</th>
+                <th class="wrapcolumntitle liste_titre center"> {php}echo $langs->trans('search_category'); {/php}</th>
                 <th class="wrapcolumntitle liste_titre center"></th>
             </tr>
         </table>
@@ -52,18 +57,18 @@
     <table id="tabla" class="tagtable liste listwithfilterbefore">
         <thead>
             <tr class="liste_titre">
-                <th>Código</th>
-                <th>Sustituto</th>
-                <th>Descripción</th>
-                <th>Stock</th>
+                <th>{php}echo $langs->trans('code'); {/php}</th>
+                <th>{php}echo $langs->trans('susbtitution'); {/php}</th>
+                <th>{php}echo $langs->trans('description'); {/php}</th>
+                <th>{php}echo $langs->trans('stock'); {/php}</th>
                 {if isset($currencies)}
                     {foreach from=$currencies item=$currency}
-                        <th>Venta {$currency['currency']}</th>
+                        <th>{php}echo $langs->trans('sell_price'); {/php} {$currency['currency']}</th>
                     {/foreach}
                 {else}
-                    <th>Precio de Venta</th>
+                    <th>{php}echo $langs->trans('sell_price'); {/php}</th>
                 {/if}
-                <th>Fecha Modificación</th>
+                <th>{php}echo $langs->trans('date_modification'); {/php}</th>
             </tr>
         </thead>
         <tbody>

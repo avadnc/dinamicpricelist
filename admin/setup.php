@@ -279,7 +279,6 @@ print dol_get_fiche_head($head, 'settings', '', -1, "dinamicpricelist@dinamicpri
 $smarty->assign('newToken', newToken());
 $self = DOL_DOCUMENT_ROOT . $_SERVER['PHP_SELF'];
 $smarty->assign('sefl', $self);
-
 $smarty->display('setup.tpl');
 
 
@@ -291,7 +290,7 @@ $num = $db->num_rows($resql);
 if ($num > 0) {
 	//Tabla para los fallidos
 	print '<div class="div-table-responsive-no-min">';
-	print '<div><h2>Productos con errores </h2></div>';
+	print '<div><h2>'.$langs->trans('product_with_errors').' </h2></div>';
 	print '<table class="noborder">';
 	$i = 0;
 	while ($i < $num) {

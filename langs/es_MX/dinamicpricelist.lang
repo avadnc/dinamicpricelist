@@ -1,4 +1,4 @@
-# Copyright (C) 2021 SuperAdmin <gerencia@suministrosenmetrologia.com>
+# Copyright (C) 2021 Alex Vives <gerencia@vivescloud.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,8 +58,31 @@ UpdateProductsOfDinamicpricelist = Actualizar Precios de Productos
 currency = Moneda
 price = Precio Compra Estático
 DinamicpricelistBoxDescription = Últimos 5 Tipo de Cambio
-
-
+select_option = Seleccione una opción
+fixed = Fijo
+percent = Porcentaje
+update_prices = Actualizar precios
+save = Guardar
+abv_cat = Categoría
+abv_type = Tipo
+abv_value = Valor
+search_code_description = Buscar por código/descripción
+search_supplier = Buscar por proveedor
+search_category = Buscar por categoría
+search_product = Buscar Producto
+code = Código
+susbtitution = Sustituto
+description = Descripción
+stock = Stock
+sell_price = Precio de venta
+date_modification = Fecha de modificación
+buy_price = Precio de compra
+supplier = Proveedor
+date = Fecha
+margin = Margen
 # Errors
 sup_product_null_curr = El proveedor no tiene asignada una Moneda
 err_product = El precio de venta es menor al precio de compra
+err_supplier = Debe agregar primero un proveedor
+err_margin = El margen no puede ser inferior a 
+product_with_errors = Productos con errores

@@ -204,10 +204,10 @@ function returnCurrency($arr, $curr)
 
 function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true)
 {
-	global $db, $user, $conf, $currencypost;
+	global $langs, $db, $user, $conf, $currencypost;
 
 	if($idsup <= 0 || is_null($idsup)){
-		return ["err", "Debe agregar primero un proveedor"];
+		return ["err", $langs->trans('err_supplier')];
 		exit;
 	}
 	$currency = getCurrency();
@@ -234,7 +234,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 	if (!empty($margin) || !is_null($margin) && $price <= 0) {
 
 		if (floatval($margin) < floatval($pricecategory->value)) {
-			return ["err", "El margen no puede ser inferior a " . $pricecategory->value];
+			return ["err", $langs->trans('err_margin') . $pricecategory->value];
 			exit;
 		}
 	}
@@ -355,7 +355,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 					}
 				}
 			} else {
-				$newprice =  price2num($cost_price) / (1 - (price2num($margin)) / 100);
+				$newprice =  price2num($cost_price) / (1 - (price2num($margin) / 100));
 				$newprice = price2num($price, 'MU');
 			}
 		}
@@ -407,7 +407,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			// .error
 			setEventMessages($product->ref, $product->errors, 'errors');
 			$db->rollback();
-			return ["err", "El margen no puede ser inferior a " . $pricecategory->value];
+			return ["err", $langs->trans('err_margin') . $pricecategory->value];
 		}
 
 		$db->commit();
@@ -533,9 +533,9 @@ if ($conf->multicurrency->enabled) {
 	global $exchange;
 	$exchange = getCurrency();
 
-	foreach ($exchange as $currency) {
-		if ($currency['currency'] != $conf->currency) {
-			$header = "<h2 style=\"color:red\"> 1 USD = " . $currency['rate'] . "MXN - <span style=\"color:black;font-size:small;\"> " . $currency['date'] . "</span></h2>";
-		}
-	}
+	// foreach ($exchange as $currency) {
+	// 	if ($currency['currency'] != $conf->currency) {
+	// 		$header = "<h2 style=\"color:red\"> 1 USD = " . $currency['rate'] . "MXN - <span style=\"color:black;font-size:small;\"> " . $currency['date'] . "</span></h2>";
+	// 	}
+	// }
 }

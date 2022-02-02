@@ -163,6 +163,7 @@ $formfile = new FormFile($db);
 $smarty->assign('supplier', $form->select_company('', 'supid', 's.fournisseur in(1)', 'SelectThirdParty', 0, 0, null, 0, "flat searchstring minwidth200", 1));
 $smarty->assign('category', $form->select_all_categories(Categorie::TYPE_PRODUCT, 'auto', 'category', 0, 0, 0, 0, 'flat searchstring minwidth200', 1));
 $smarty->assign('newToken', newToken());
+$smarty->assign('localcurrency', $conf->currency);
 llxHeader("", $langs->trans("DinamicpricelistUpdate"));
 
 print load_fiche_titre($langs->trans("DinamicpricelistUpdate"), $header, 'updateprice.png@dinamicpricelist');

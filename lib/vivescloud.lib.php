@@ -356,7 +356,7 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 				}
 			} else {
 				$newprice =  price2num($cost_price) / (1 - (price2num($margin) / 100));
-				$newprice = price2num($price, 'MU');
+				$newprice = price2num($newprice, 'MU');
 			}
 		}
 

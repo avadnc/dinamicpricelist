@@ -82,6 +82,7 @@ global $langs;
 {foreach from=$currencies item=$currency}
     <input type="hidden" name="currency[]" id="{$currency['currency']}" value="{$currency['rate']}">
 {/foreach}
+<input type="hidden" id="localcurrency" value="{$localcurrency}">
 {include file="footer.tpl"}
 
 <script src="js/script.js"></script>

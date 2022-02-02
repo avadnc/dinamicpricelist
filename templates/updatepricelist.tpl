@@ -79,9 +79,13 @@ global $langs;
         </tbody>
     </table>
 </div>
-{foreach from=$currencies item=$currency}
-    <input type="hidden" name="currency[]" id="{$currency['currency']}" value="{$currency['rate']}">
-{/foreach}
+{if isset($currencies)}
+    {foreach from=$currencies item=$currency}
+        <input type="hidden" name="currency[]" id="{$currency['currency']}" value="{$currency['rate']}">
+    {/foreach}
+{else}
+    <input type="hidden" name="currency[]" id="{$localcurrency}" value="1">
+{/if}
 <input type="hidden" id="localcurrency" value="{$localcurrency}">
 {include file="footer.tpl"}
 

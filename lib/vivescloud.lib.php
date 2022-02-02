@@ -477,6 +477,10 @@ function getProductSupplier($idprod, $idsup = null)
 							$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
 							$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
 						}
+					} else {
+						$supplier_arr['currency'] =	$conf->currency;
+						$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
+						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
 					}
 					array_push($supplier, $supplier_arr);
 

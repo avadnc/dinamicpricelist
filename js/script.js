@@ -1,4 +1,3 @@
-
 $("#loading").hide();
 var tabla = $("#tabla").DataTable({
 	searching: true,
@@ -173,8 +172,6 @@ $("#search_button_update").click(function (e) {
 		success: function (resp) {
 			result = JSON.parse(resp);
 			var count = result.length;
-			console.log(result);
-
 			for (var i = 0; i < count; i++) {
 				let id = result[i]["id"];
 				let profit = 0;
@@ -373,7 +370,6 @@ function getMarginProfit(cost, price, currency = null) {
 			parseFloat(price);
 			parseFloat(cost);
 			result0 = cost / currency;
-			console.log(currency);
 			result1 = price / result0;
 			result2 = result1 * 100;
 			result3 = result2 - 100;
@@ -433,7 +429,7 @@ $(document).on("keypress", ".editmarg", function (e) {
 		if (typeof currency !== "undefined") {
 			currency = $("#localcurrency").val();
 		}
-		console.log(margin);
+		
 		data = new FormData();
 		data.append("id", idcompra);
 		data.append("cost_price", cost_price);
@@ -451,7 +447,7 @@ $(document).on("keypress", ".editmarg", function (e) {
 			cache: false,
 			success: function (result) {
 				result = JSON.parse(result);
-				console.log(result);
+			
 				if (result[0] == "err") {
 					alert(result[1] + "%");
 					return;
@@ -499,12 +495,14 @@ $("input[name*='currency']").each(function (key, value) {
 			let idcompra = $(element).attr("idprod");
 			cost_price = $("#" + idcompra).val();
 			currency = $("#curr" + idcompra).html();
-			
-			if (currency != localcurrency){
+
+			if (currency != localcurrency) {
 				// cost_price = parseFloat(cost_price) / parseFloat(exchage);
 				price = parseFloat(price) / parseFloat(exchage);
 			}
-			supid = $("#suplist" + idcompra).prop("selected", true).val();
+			supid = $("#suplist" + idcompra)
+				.prop("selected", true)
+				.val();
 			data = new FormData();
 			data.append("id", idcompra);
 			data.append("price", price);
@@ -528,8 +526,6 @@ $("input[name*='currency']").each(function (key, value) {
 					}
 					$.each(result["currency"], function (key, value) {
 						$.each(value, function (key, value) {
-							console.log(idcompra);
-
 							if (value == 0) {
 								$("input[" + key + "='" + idcompra + "']").val(0);
 								$("input[" + key + "='" + idcompra + "']")
@@ -561,11 +557,10 @@ $(document).on("change click", "select[name='suplist']", function () {
 	idprod = $(element).attr("idprod");
 	data = getProductPrice(idprod, prov);
 	data = JSON.parse(data);
-	console.log(data);
 	$("#" + idprod)
 		.next("span")
 		.html(data[0]["currency"]);
-	console.log(data);
+
 	$("#" + idprod).val(data[0]["price"]);
 	$("#margin" + idprod).val(data[0]["profit"]);
 	$("#date" + idprod).html("<span>" + data[0]["modification_date"] + "</span>");

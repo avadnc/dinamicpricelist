@@ -254,11 +254,15 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 			if (!empty($idsup)) {
 				if ($productfourn->fourn_id == $idsup) {
 
+
 					$ref_fourn = $productfourn->fourn_ref;
 					$tva_tx = $productfourn->fourn_tva_tx;
 					$delivery_time_days = $productfourn->delivery_time_days;
 					$supplier_reputation = $productfourn->supplier_reputation;
 					$multicurrency_code = $productfourn->fourn_multicurrency_code;
+					if (empty($multicurrency_code)) {
+						$multicurrency_code = $conf->currency;
+					}
 					$idprice = $productfourn->product_fourn_price_id;
 					if ($conf->multicurrency->enabled) {
 						foreach ($currency as $rate) {
@@ -268,7 +272,6 @@ function updatePrice($id, $idsup, $cost_price, $price, $margin, $response = true
 						}
 
 						if ($multicurrency_code != $conf->currency) {
-
 
 							$multicurrency_price = price2num($cost_price, 'MU');
 							$sup_newprice = $multicurrency_price / price2num($multicurrency_tx);
@@ -459,12 +462,11 @@ function getProductSupplier($idprod, $idsup = null)
 
 			if (!empty($idsup)) {
 				if ($productfourn->fourn_id == $idsup) {
-
 					$supplier_arr = [
 						'supid' => $productfourn->fourn_id,
 						'name' => $productfourn->fourn_name,
 						'modification_date' => dol_print_date($productfourn->fourn_date_modification, "%d/%m/%Y"),
-						'currency' => $productfourn->fourn_multicurrency_code,
+
 					];
 
 					if ($conf->multicurrency->enabled) {
@@ -501,15 +503,15 @@ function getProductSupplier($idprod, $idsup = null)
 				];
 				if ($conf->multicurrency->enabled) {
 					if ($productfourn->fourn_multicurrency_code != $conf->currency) {
+
 						$supplier_arr['currency'] = $productfourn->fourn_multicurrency_code;
 						$supplier_arr['price'] = round($productfourn->fourn_multicurrency_price, 2);
 						$rate = returnCurrency($currencies, $productfourn->fourn_multicurrency_code);
-						// echo "el precio es ".$product->price;
-						// $price_profit = 0;
 						$price_profit = $product->price ? round(floatval($product->price), 2) * floatval($rate) : 0;
 
 						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], $price_profit);
 					} else {
+						$supplier_arr['currency'] = $productfourn->fourn_multicurrency_code;
 						$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
 						$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
 					}
@@ -517,6 +519,9 @@ function getProductSupplier($idprod, $idsup = null)
 					$supplier_arr['currency'] = $conf->currency;
 					$supplier_arr['price'] = round($productfourn->fourn_unitprice, 2);
 					$supplier_arr['profit'] = calcProfit($supplier_arr['price'], price2num($product->price));
+				}
+				if (is_null($supplier_arr['currency']) || empty($supplier_arr['currency'])) {
+					$supplier_arr['currency'] = $conf->currency;
 				}
 				array_push($supplier, $supplier_arr);
 			}

@@ -385,28 +385,7 @@ function getMarginProfit(cost, price, currency = null) {
 		}
 	}
 }
-tablaupdate.on("key", function (e, datatable, key, cell, originalEvent) {
-	if (key == 13) {
-		textoseparado = cell.data().split('"');
 
-		if (textoseparado[3] == "editcost") {
-			$("#" + textoseparado[5]).focus();
-			$("#" + textoseparado[5]).select();
-		}
-		if (textoseparado[3] == "editmarg") {
-			$('input[margen="' + textoseparado[5] + '"]').focus();
-			$('input[margen="' + textoseparado[5] + '"]').select();
-		}
-		if (textoseparado[3] == "editUSD") {
-			$('input[USD="' + textoseparado[11] + '"]').focus();
-			$('input[USD="' + textoseparado[11] + '"]').select();
-		}
-		if (textoseparado[3] == "editMXN") {
-			$('input[MXN="' + textoseparado[11] + '"]').focus();
-			$('input[MXN="' + textoseparado[11] + '"]').select();
-		}
-	}
-});
 
 $(document).on("keypress", ".editmarg", function (e) {
 	if (e.which == 13) {
@@ -477,9 +456,29 @@ $(document).on("keypress", ".editmarg", function (e) {
 });
 
 $("input[name*='currency']").each(function (key, value) {
+	
 	let idcurr = $(value).attr("id");
 	let exchage = $(value).val();
 	let localcurrency = $("#localcurrency").val();
+
+	tablaupdate.on("key", function (e, datatable, key, cell, originalEvent) {
+		if (key == 13) {
+			textoseparado = cell.data().split('"');
+
+			if (textoseparado[3] == "editcost") {
+				$("#" + textoseparado[5]).focus();
+				$("#" + textoseparado[5]).select();
+			}
+			if (textoseparado[3] == "editmarg") {
+				$('input[margen="' + textoseparado[5] + '"]').focus();
+				$('input[margen="' + textoseparado[5] + '"]').select();
+			}
+			if (textoseparado[3] == "edit" + idcurr) {
+				$('input['+idcurr+'="' + textoseparado[11] + '"]').focus();
+				$('input['+idcurr+'="' + textoseparado[11] + '"]').select();
+			}
+		}
+	});
 
 	$(document).on("keypress", ".edit" + idcurr, function (e) {
 		if (e.which == 13) {
